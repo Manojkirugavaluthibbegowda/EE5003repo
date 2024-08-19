@@ -11,15 +11,35 @@ async function fetchData(view) {
     }
 }
 
-function updateChart(chart, data, deviceName, viewLabel, dynamicMax) {
-    chart.data.labels = [deviceName + " (" + viewLabel + ")"];
-    chart.data.datasets[0].data = [data[deviceName]];
+function updateChart(chart, data, deviceName, viewLabel, dynamicMax, isTimeSeries, chartType) {
+    if (isTimeSeries) {
+        // Handle the time series data for Current Consumption
+        const timestamps = data.map(entry => entry.timestamp);
+        const consumptions = data.map(entry => entry.consumption);
+        chart.data.labels = timestamps;
+        chart.data.datasets[0].data = consumptions;
 
-    if (dynamicMax) {
-        const currentValue = data[deviceName];
-        chart.options.scales.y.max = currentValue * 1.1; // Adjust dynamically with a buffer
+        // Adjust y-axis dynamically
+        const maxYValue = Math.max(...consumptions);
+        chart.options.scales.y.max = dynamicMax ? maxYValue * 1.1 : chart.originalMax;
     } else {
-        chart.options.scales.y.max = chart.originalMax; // Reset to original max value
+        // Handle single value data for Average/Total Consumption
+        chart.data.labels = [deviceName + " (" + viewLabel + ")"];
+        chart.data.datasets[0].data = [data[deviceName]];
+
+        // Dynamically adjust the y-axis in Total Consumption
+        if (dynamicMax) {
+            const maxYValue = data[deviceName];
+            chart.options.scales.y.max = maxYValue * 1.1;  // Add 10% buffer
+        } else {
+            chart.options.scales.y.max = chart.originalMax;  // Reset to original max value
+        }
+    }
+
+    // Update the chart type
+    if (chart.config.type !== chartType) {
+        chart.config.type = chartType;
+        chart.update();  // Re-render the chart when type changes
     }
 
     chart.update();
@@ -33,11 +53,13 @@ async function updateData(charts, view) {
     const data = await fetchData(view);
     const viewLabel = view === "0" ? "Current Consumption" : view === "1" ? "Average Consumption" : "Total Consumption";
     const dynamicMax = view === "2";  // Only enable dynamic max for "Total Consumption"
+    const isTimeSeries = view === "0";  // Show time series only for "Current Consumption"
+    const chartType = view === "0" ? 'line' : 'bar';  // Line chart for Current, Bar chart for Average/Total
 
-    updateChart(charts.ledBulbChart, data, "LED Bulb", viewLabel, dynamicMax);
-    updateChart(charts.washingMachineChart, data, "Washing Machine", viewLabel, dynamicMax);
-    updateChart(charts.refrigeratorChart, data, "Refrigerator", viewLabel, dynamicMax);
-    updateChart(charts.centralizedHeaterChart, data, "Centralized Heater", viewLabel, dynamicMax);
+    updateChart(charts.ledBulbChart, isTimeSeries ? data["LED Bulb"] : data, "LED Bulb", viewLabel, dynamicMax, isTimeSeries, chartType);
+    updateChart(charts.washingMachineChart, isTimeSeries ? data["Washing Machine"] : data, "Washing Machine", viewLabel, dynamicMax, isTimeSeries, chartType);
+    updateChart(charts.refrigeratorChart, isTimeSeries ? data["Refrigerator"] : data, "Refrigerator", viewLabel, dynamicMax, isTimeSeries, chartType);
+    updateChart(charts.centralizedHeaterChart, isTimeSeries ? data["Centralized Heater"] : data, "Centralized Heater", viewLabel, dynamicMax, isTimeSeries, chartType);
 }
 
 window.onload = function() {
@@ -50,15 +72,16 @@ window.onload = function() {
 
     const charts = {
         ledBulbChart: new Chart(ctxs.ledBulbChart, {
-            type: 'bar',
+            type: 'line',  // Start with line chart for Current Consumption
             data: {
                 labels: [],
                 datasets: [{
                     label: 'Energy Consumption (kWh)',
                     data: [],
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    fill: false,
                     borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',  // For bar chart
+                    tension: 0.1
                 }]
             },
             options: {
@@ -67,20 +90,27 @@ window.onload = function() {
                         beginAtZero: true,
                         min: 0,
                         max: 0.005  // Set max according to expected LED Bulb consumption
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
                     }
                 }
             }
         }),
         washingMachineChart: new Chart(ctxs.washingMachineChart, {
-            type: 'bar',
+            type: 'line',
             data: {
                 labels: [],
                 datasets: [{
                     label: 'Energy Consumption (kWh)',
                     data: [],
-                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    fill: false,
                     borderColor: 'rgba(153, 102, 255, 1)',
-                    borderWidth: 1
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',  // For bar chart
+                    tension: 0.1
                 }]
             },
             options: {
@@ -89,20 +119,27 @@ window.onload = function() {
                         beginAtZero: true,
                         min: 0,
                         max: 2.0  // Set max according to expected Washing Machine consumption
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
                     }
                 }
             }
         }),
         refrigeratorChart: new Chart(ctxs.refrigeratorChart, {
-            type: 'bar',
+            type: 'line',
             data: {
                 labels: [],
                 datasets: [{
                     label: 'Energy Consumption (kWh)',
                     data: [],
-                    backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                    fill: false,
                     borderColor: 'rgba(255, 159, 64, 1)',
-                    borderWidth: 1
+                    backgroundColor: 'rgba(255, 159, 64, 0.2)',  // For bar chart
+                    tension: 0.1
                 }]
             },
             options: {
@@ -111,20 +148,27 @@ window.onload = function() {
                         beginAtZero: true,
                         min: 0,
                         max: 0.3  // Set max according to expected Refrigerator consumption
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
                     }
                 }
             }
         }),
         centralizedHeaterChart: new Chart(ctxs.centralizedHeaterChart, {
-            type: 'bar',
+            type: 'line',
             data: {
                 labels: [],
                 datasets: [{
                     label: 'Energy Consumption (kWh)',
                     data: [],
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    fill: false,
                     borderColor: 'rgba(255, 99, 132, 1)',
-                    borderWidth: 1
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',  // For bar chart
+                    tension: 0.1
                 }]
             },
             options: {
@@ -133,6 +177,12 @@ window.onload = function() {
                         beginAtZero: true,
                         min: 0,
                         max: 5.0  // Set max according to expected Centralized Heater consumption
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Time'
+                        }
                     }
                 }
             }

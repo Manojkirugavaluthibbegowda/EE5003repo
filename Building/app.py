@@ -13,32 +13,42 @@ historical_data = {
     "Centralized Heater": []
 }
 
+total_consumption = {
+    "LED Bulb": 0,
+    "Washing Machine": 0,
+    "Refrigerator": 0,
+    "Centralized Heater": 0
+}
+
 def update_historical_data(new_data):
     for entry in new_data:
         device = entry['device']
         consumption = entry['consumption']
-        historical_data[device].append(consumption)
+        timestamp = entry['timestamp']
+        historical_data[device].append({"consumption": consumption, "timestamp": timestamp})
+        total_consumption[device] += consumption  # Accumulate the total consumption
+        if len(historical_data[device]) > 10:  # Limit history to last 10 entries for simplicity
+            historical_data[device].pop(0)
 
 def calculate_averages():
     averages = {}
-    for device, consumptions in historical_data.items():
-        if consumptions:
-            averages[device] = round(sum(consumptions) / len(consumptions), 3)
+    for device, entries in historical_data.items():
+        if entries:
+            total_consumption = sum(entry['consumption'] for entry in entries)
+            averages[device] = round(total_consumption / len(entries), 3)
         else:
             averages[device] = 0
     return averages
 
 def calculate_totals():
-    totals = {}
-    for device, consumptions in historical_data.items():
-        totals[device] = round(sum(consumptions), 3)
-    return totals
+    # Simply return the accumulated total consumption
+    return total_consumption
 
 @app.route('/data')
 def get_data():
     new_data = data_generator.generate_device_data()
     update_historical_data(new_data)
-    return jsonify({d['device']: d['consumption'] for d in new_data})
+    return jsonify(historical_data)
 
 @app.route('/averages')
 def get_averages():
