@@ -1,55 +1,46 @@
-async function fetchData() {
-    const response = await fetch('/data');
-    const data = await response.json();
-    return data;
+async function fetchData(view) {
+    if (view === "0") {
+        const response = await fetch('/data');
+        return await response.json();
+    } else if (view === "1") {
+        const response = await fetch('/averages');
+        return await response.json();
+    } else if (view === "2") {
+        const response = await fetch('/totals');
+        return await response.json();
+    }
 }
 
-async function fetchAverages() {
-    const response = await fetch('/averages');
-    const averages = await response.json();
-    return averages;
-}
-
-async function fetchTotals() {
-    const response = await fetch('/totals');
-    const totals = await response.json();
-    return totals;
-}
-
-function updateChart(chart, data, deviceName, viewLabel) {
+function updateChart(chart, data, deviceName, viewLabel, dynamicMax) {
     chart.data.labels = [deviceName + " (" + viewLabel + ")"];
     chart.data.datasets[0].data = [data[deviceName]];
+
+    if (dynamicMax) {
+        const currentValue = data[deviceName];
+        chart.options.scales.y.max = currentValue * 1.1; // Adjust dynamically with a buffer
+    } else {
+        chart.options.scales.y.max = chart.originalMax; // Reset to original max value
+    }
+
     chart.update();
 }
 
 function getSelectedView() {
-    const selectedRadio = document.querySelector('.switch-container input[type="radio"]:checked');
-    return selectedRadio.value;
+    return document.querySelector('.switch-container input[type="radio"]:checked').value;
 }
 
-async function updateData(charts) {
-    const view = getSelectedView();
-    let data;
-    let viewLabel;
+async function updateData(charts, view) {
+    const data = await fetchData(view);
+    const viewLabel = view === "0" ? "Current Consumption" : view === "1" ? "Average Consumption" : "Total Consumption";
+    const dynamicMax = view === "2";  // Only enable dynamic max for "Total Consumption"
 
-    if (view === "0") {
-        data = await fetchData();
-        viewLabel = "Current Consumption";
-    } else if (view === "1") {
-        data = await fetchAverages();
-        viewLabel = "Average Consumption";
-    } else if (view === "2") {
-        data = await fetchTotals();
-        viewLabel = "Total Consumption";
-    }
-
-    updateChart(charts.ledBulbChart, data, "LED Bulb", viewLabel);
-    updateChart(charts.washingMachineChart, data, "Washing Machine", viewLabel);
-    updateChart(charts.refrigeratorChart, data, "Refrigerator", viewLabel);
-    updateChart(charts.centralizedHeaterChart, data, "Centralized Heater", viewLabel);
+    updateChart(charts.ledBulbChart, data, "LED Bulb", viewLabel, dynamicMax);
+    updateChart(charts.washingMachineChart, data, "Washing Machine", viewLabel, dynamicMax);
+    updateChart(charts.refrigeratorChart, data, "Refrigerator", viewLabel, dynamicMax);
+    updateChart(charts.centralizedHeaterChart, data, "Centralized Heater", viewLabel, dynamicMax);
 }
 
-window.onload = async function() {
+window.onload = function() {
     const ctxs = {
         ledBulbChart: document.getElementById('ledBulbChart').getContext('2d'),
         washingMachineChart: document.getElementById('washingMachineChart').getContext('2d'),
@@ -148,19 +139,28 @@ window.onload = async function() {
         }),
     };
 
-    // Update data every 5 seconds, regardless of the selected view
+    // Store original max values for each chart
+    charts.ledBulbChart.originalMax = charts.ledBulbChart.options.scales.y.max;
+    charts.washingMachineChart.originalMax = charts.washingMachineChart.options.scales.y.max;
+    charts.refrigeratorChart.originalMax = charts.refrigeratorChart.options.scales.y.max;
+    charts.centralizedHeaterChart.originalMax = charts.centralizedHeaterChart.options.scales.y.max;
+
+    // Initial view set to "Current Consumption"
+    let currentView = "0";
+
+    // Continuously update data based on selected view
     setInterval(() => {
-        updateData(charts);
+        updateData(charts, currentView);
     }, 1000);
 
-    // Update data immediately when a radio button is changed
-    const viewRadios = document.querySelectorAll('.switch-container input[type="radio"]');
-    viewRadios.forEach(radio => {
+    // Update data when the view is changed via radio buttons
+    document.querySelectorAll('.switch-container input[type="radio"]').forEach(radio => {
         radio.addEventListener('change', () => {
-            updateData(charts);
+            currentView = getSelectedView();
+            updateData(charts, currentView);
         });
     });
 
-    // Load initial data
-    updateData(charts);
+    // Initial data load
+    updateData(charts, currentView);
 }
