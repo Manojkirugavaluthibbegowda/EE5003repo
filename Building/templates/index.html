@@ -5,10 +5,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Energy Usage Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      /* Switch Container */
+      .switch-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      /* Radio buttons (hidden) */
+      .switch-container input[type="radio"] {
+        display: none;
+      }
+
+      /* Labels for the switches */
+      .switch-container label {
+        padding: 10px 20px;
+        margin: 0;
+        cursor: pointer;
+        border: 1px solid #ccc;
+        border-radius: 25px;
+        background-color: #f0f0f0;
+        color: #333;
+        transition: all 0.3s ease;
+        font-size: 14px;
+        text-align: center;
+      }
+
+      /* Highlight the selected switch */
+      .switch-container input[type="radio"]:checked + label {
+        background-color: #4caf50;
+        color: white;
+        border-color: #4caf50;
+      }
+
+      /* Add a hover effect */
+      .switch-container label:hover {
+        background-color: #ddd;
+      }
+
+      /* Chart Container */
+      .chart-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
+      }
+
+      .chart-box {
+        width: 45%;
+        margin-bottom: 20px;
+      }
+    </style>
   </head>
   <body>
     <h1>Energy Usage Dashboard</h1>
-    <canvas id="energyChart" width="400" height="200"></canvas>
+
+    <!-- Modern Toggle Switch -->
+    <div class="switch-container">
+      <input type="radio" id="current" name="view" value="0" checked />
+      <label for="current">Current Consumption</label>
+
+      <input type="radio" id="average" name="view" value="1" />
+      <label for="average">Average Consumption</label>
+
+      <input type="radio" id="total" name="view" value="2" />
+      <label for="total">Total Consumption</label>
+    </div>
+
+    <!-- Chart Containers -->
+    <div class="chart-container">
+      <div class="chart-box">
+        <canvas id="ledBulbChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <canvas id="washingMachineChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <canvas id="refrigeratorChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <canvas id="centralizedHeaterChart"></canvas>
+      </div>
+    </div>
+
     <script src="/static/js/dashboard.js"></script>
   </body>
 </html>
