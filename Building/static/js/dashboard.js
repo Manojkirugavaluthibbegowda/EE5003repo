@@ -190,11 +190,7 @@ window.onload = function() {
     };
 
     // Store original max values for each chart
-    charts.ledBulbChart.originalMax = charts.ledBulbChart.options.scales.y.max;
-    charts.washingMachineChart.originalMax = charts.washingMachineChart.options.scales.y.max;
-    charts.refrigeratorChart.originalMax = charts.refrigeratorChart.options.scales.y.max;
-    charts.centralizedHeaterChart.originalMax = charts.centralizedHeaterChart.options.scales.y.max;
-
+   
     // Initial view set to "Current Consumption"
     let currentView = "0";
 
