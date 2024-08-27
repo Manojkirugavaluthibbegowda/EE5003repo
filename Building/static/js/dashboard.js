@@ -19,6 +19,10 @@ function updateChart(chart, data, deviceName, viewLabel, dynamicMax, isTimeSerie
         chart.data.labels = timestamps;
         chart.data.datasets[0].data = consumptions;
 
+        // Display the current value in the label
+        const currentValue = consumptions[consumptions.length - 1];
+        chart.data.datasets[0].label = `${deviceName} Energy Consumption (${currentValue} kWh)`;
+
         // Adjust y-axis dynamically
         const maxYValue = Math.max(...consumptions);
         chart.options.scales.y.max = dynamicMax ? maxYValue * 1.1 : chart.originalMax;
@@ -26,6 +30,7 @@ function updateChart(chart, data, deviceName, viewLabel, dynamicMax, isTimeSerie
         // Handle single value data for Average/Total Consumption
         chart.data.labels = [deviceName + " (" + viewLabel + ")"];
         chart.data.datasets[0].data = [data[deviceName]];
+        chart.data.datasets[0].label = `${deviceName} Energy Consumption (kWh)`;
 
         // Dynamically adjust the y-axis in Total Consumption
         if (dynamicMax) {
