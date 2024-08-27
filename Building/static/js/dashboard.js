@@ -176,7 +176,7 @@ window.onload = function() {
                     y: {
                         beginAtZero: true,
                         min: 0,
-                        max: 0.005  // Set max according to expected LED Bulb consumption
+                        max: 0.006  // Set max according to expected LED Bulb consumption
                     },
                     x: {
                         title: {
