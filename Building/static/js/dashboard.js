@@ -1,16 +1,38 @@
-async function fetchData(view) {
-    if (view === "0") {
-        const response = await fetch('/data');
-        return await response.json();
-    } else if (view === "1") {
-        const response = await fetch('/averages');
-        return await response.json();
-    } else if (view === "2") {
-        const response = await fetch('/totals');
-        return await response.json();
+// Maximum consumption limits for each device in kWh
+const deviceLimits = {
+    "LED Bulb": 0.005,  
+    "Washing Machine": 1.2,  
+    "Refrigerator": 0.2,  
+    "Centralized Heater": 2.5  
+};
+
+// Function to check for overconsumption
+function checkOverconsumption(deviceName, currentValue, timestamp) {
+    const limit = deviceLimits[deviceName];
+    if (currentValue >= 0.95 * limit) {
+        showAlert(deviceName, currentValue, timestamp);
     }
 }
 
+// Function to display an alert
+function showAlert(deviceName, currentValue, timestamp) {
+    const alertBox = document.createElement('div');
+    alertBox.classList.add('alert-box');
+    alertBox.innerHTML = `
+        <strong>Overconsumption Alert!</strong>
+        <p>Device: ${deviceName}</p>
+        <p>Consumption: ${currentValue} kWh</p>
+        <p>Time: ${timestamp}</p>
+    `;
+    document.body.appendChild(alertBox);
+
+    // Automatically remove the alert after 5 seconds
+    setTimeout(() => {
+        alertBox.remove();
+    }, 3000);
+}
+
+// Function to update the chart with new data
 function updateChart(chart, data, deviceName, viewLabel, dynamicMax, isTimeSeries, chartType) {
     if (isTimeSeries) {
         // Handle the time series data for Current Consumption
@@ -21,7 +43,11 @@ function updateChart(chart, data, deviceName, viewLabel, dynamicMax, isTimeSerie
 
         // Display the current value in the label
         const currentValue = consumptions[consumptions.length - 1];
+        const currentTimestamp = timestamps[timestamps.length - 1];
         chart.data.datasets[0].label = `${deviceName} Energy Consumption (${currentValue} kWh)`;
+
+        // Check for overconsumption
+        checkOverconsumption(deviceName, currentValue, currentTimestamp);
 
         // Adjust y-axis dynamically
         const maxYValue = Math.max(...consumptions);
@@ -41,7 +67,7 @@ function updateChart(chart, data, deviceName, viewLabel, dynamicMax, isTimeSerie
         }
     }
 
-    // Update the chart type
+    // Update the chart type if it has changed
     if (chart.config.type !== chartType) {
         chart.config.type = chartType;
         chart.update();  // Re-render the chart when type changes
@@ -50,10 +76,12 @@ function updateChart(chart, data, deviceName, viewLabel, dynamicMax, isTimeSerie
     chart.update();
 }
 
+// Function to get the selected view (Current, Average, or Total Consumption)
 function getSelectedView() {
     return document.querySelector('.switch-container input[type="radio"]:checked').value;
 }
 
+// Function to fetch and update the data for the charts
 async function updateData(charts, view) {
     const data = await fetchData(view);
     const viewLabel = view === "0" ? "Current Consumption" : view === "1" ? "Average Consumption" : "Total Consumption";
@@ -65,6 +93,21 @@ async function updateData(charts, view) {
     updateChart(charts.washingMachineChart, isTimeSeries ? data["Washing Machine"] : data, "Washing Machine", viewLabel, dynamicMax, isTimeSeries, chartType);
     updateChart(charts.refrigeratorChart, isTimeSeries ? data["Refrigerator"] : data, "Refrigerator", viewLabel, dynamicMax, isTimeSeries, chartType);
     updateChart(charts.centralizedHeaterChart, isTimeSeries ? data["Centralized Heater"] : data, "Centralized Heater", viewLabel, dynamicMax, isTimeSeries, chartType);
+}
+
+// Function to fetch the data from the server
+async function fetchData(view) {
+    let url = '';
+    if (view === "0") {
+        url = '/data';
+    } else if (view === "1") {
+        url = '/averages';
+    } else if (view === "2") {
+        url = '/totals';
+    }
+
+    const response = await fetch(url);
+    return await response.json();
 }
 
 window.onload = function() {
@@ -206,7 +249,7 @@ window.onload = function() {
     // Continuously update data based on selected view
     setInterval(() => {
         updateData(charts, currentView);
-    }, 1000);
+    }, 3000);
 
     // Update data when the view is changed via radio buttons
     document.querySelectorAll('.switch-container input[type="radio"]').forEach(radio => {
