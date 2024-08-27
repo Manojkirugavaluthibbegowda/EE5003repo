@@ -3,7 +3,7 @@ This is the GitHub repository page for Master's project EE5003 of student 'Manoj
 
 # Title : Energy Usage Dashboard
 
-# Project Overview :
+## Project Overview :
 
 The Energy Usage Dashboard is a web-based application that monitors and displays real-time electricity consumption for various household devices. The application provides insights into energy usage patterns and offers recommendations to optimize consumption. The dashboard includes charts for devices such as LED Bulbs, Washing Machines, Refrigerators, and Centralized Heaters, with options to view current, average, and total energy consumption.
 
@@ -47,8 +47,8 @@ The Energy Usage Dashboard is a web-based application that monitors and displays
 
 
 
-# Data Persistence :
+## Data Persistence :
 The application saves energy consumption data to a json file named 'energy_data.json' . This file ensures that the data is persisted across server restarts.
 
-# Generating New Data :
+## Generating New Data :
 The application generates random energy consumption data for each device. This data is continuously updated and displayed on the dashboard, providing a real-time view of energy usage.
