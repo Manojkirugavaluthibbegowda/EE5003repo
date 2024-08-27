@@ -1,21 +1,47 @@
 // Maximum consumption limits for each device in kWh
 const deviceLimits = {
-    "LED Bulb": 0.005,  
-    "Washing Machine": 1.2,  
-    "Refrigerator": 0.2,  
-    "Centralized Heater": 2.5  
+    "LED Bulb": 0.005,  // Example limit
+    "Washing Machine": 1.2,  // Example limit
+    "Refrigerator": 0.2,  // Example limit
+    "Centralized Heater": 2.5  // Example limit
 };
 
-// Function to check for overconsumption
+// Function to generate recommendations based on consumption
+function generateRecommendations(deviceName, currentValue) {
+    const recommendations = [];
+
+    if (deviceName === "Centralized Heater") {
+        recommendations.push("Consider lowering the thermostat a few degrees to save energy.");
+        recommendations.push("Ensure windows and doors are properly sealed to prevent heat loss.");
+    } else if (deviceName === "Washing Machine") {
+        recommendations.push("Try using cold water settings to reduce energy consumption.");
+        recommendations.push("Wash full loads to maximize efficiency.");
+    } else if (deviceName === "Refrigerator") {
+        recommendations.push("Check the door seals to ensure they're tight.");
+        recommendations.push("Avoid placing hot food directly into the refrigerator.");
+    } else if (deviceName === "LED Bulb") {
+        recommendations.push("Turn off lights when not in use.");
+        recommendations.push("Consider using natural light during the day.");
+    }
+
+    if (currentValue >= 0.9 * deviceLimits[deviceName]) {
+        recommendations.push("Your usage is approaching the maximum capacity. Consider reducing usage.");
+    }
+
+    return recommendations;
+}
+
+// Function to check for overconsumption and generate recommendations
 function checkOverconsumption(deviceName, currentValue, timestamp) {
     const limit = deviceLimits[deviceName];
-    if (currentValue >= 0.95 * limit) {
-        showAlert(deviceName, currentValue, timestamp);
+    if (currentValue >= 0.9 * limit) {
+        const recommendations = generateRecommendations(deviceName, currentValue);
+        showAlert(deviceName, currentValue, timestamp, recommendations);
     }
 }
 
-// Function to display an alert
-function showAlert(deviceName, currentValue, timestamp) {
+// Function to display an alert with recommendations
+function showAlert(deviceName, currentValue, timestamp, recommendations) {
     const alertBox = document.createElement('div');
     alertBox.classList.add('alert-box');
     alertBox.innerHTML = `
@@ -23,13 +49,17 @@ function showAlert(deviceName, currentValue, timestamp) {
         <p>Device: ${deviceName}</p>
         <p>Consumption: ${currentValue} kWh</p>
         <p>Time: ${timestamp}</p>
+        <strong>Recommendations:</strong>
+        <ul>
+            ${recommendations.map(rec => `<li>${rec}</li>`).join('')}
+        </ul>
     `;
     document.body.appendChild(alertBox);
 
-    // Automatically remove the alert after 5 seconds
+    // Automatically remove the alert after 10 seconds
     setTimeout(() => {
         alertBox.remove();
-    }, 3000);
+    }, 10000);
 }
 
 // Function to update the chart with new data
@@ -46,7 +76,7 @@ function updateChart(chart, data, deviceName, viewLabel, dynamicMax, isTimeSerie
         const currentTimestamp = timestamps[timestamps.length - 1];
         chart.data.datasets[0].label = `${deviceName} Energy Consumption (${currentValue} kWh)`;
 
-        // Check for overconsumption
+        // Check for overconsumption and generate recommendations
         checkOverconsumption(deviceName, currentValue, currentTimestamp);
 
         // Adjust y-axis dynamically
@@ -249,7 +279,7 @@ window.onload = function() {
     // Continuously update data based on selected view
     setInterval(() => {
         updateData(charts, currentView);
-    }, 3000);
+    }, 5000);
 
     // Update data when the view is changed via radio buttons
     document.querySelectorAll('.switch-container input[type="radio"]').forEach(radio => {
