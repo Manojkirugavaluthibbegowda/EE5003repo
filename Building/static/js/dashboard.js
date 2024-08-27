@@ -201,7 +201,7 @@ window.onload = function() {
     // Continuously update data based on selected view
     setInterval(() => {
         updateData(charts, currentView);
-    }, 3000);
+    }, 1000);
 
     // Update data when the view is changed via radio buttons
     document.querySelectorAll('.switch-container input[type="radio"]').forEach(radio => {

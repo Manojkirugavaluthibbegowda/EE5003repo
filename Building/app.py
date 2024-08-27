@@ -1,3 +1,5 @@
+import os
+import json
 from flask import Flask, jsonify, render_template
 from flask_cors import CORS
 import data_generator
@@ -5,7 +7,10 @@ import data_generator
 app = Flask(__name__)
 CORS(app)
 
-# In-memory storage for historical data
+# File to persist data
+DATA_FILE = 'energy_data.json'
+
+# In-memory storage for historical data and total consumption
 historical_data = {
     "LED Bulb": [],
     "Washing Machine": [],
@@ -20,6 +25,20 @@ total_consumption = {
     "Centralized Heater": 0
 }
 
+def load_data():
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, 'r') as file:
+            data = json.load(file)
+            return data.get('historical_data', {}), data.get('total_consumption', {})
+    return historical_data, total_consumption
+
+def save_data():
+    with open(DATA_FILE, 'w') as file:
+        json.dump({
+            'historical_data': historical_data,
+            'total_consumption': total_consumption
+        }, file)
+
 def update_historical_data(new_data):
     for entry in new_data:
         device = entry['device']
@@ -29,6 +48,7 @@ def update_historical_data(new_data):
         total_consumption[device] += consumption  # Accumulate the total consumption
         if len(historical_data[device]) > 10:  # Limit history to last 10 entries for simplicity
             historical_data[device].pop(0)
+    save_data()  # Save data after each update
 
 def calculate_averages():
     averages = {}
@@ -65,4 +85,6 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
+    # Load data from the file when the server starts
+    historical_data, total_consumption = load_data()
     app.run(debug=True)
