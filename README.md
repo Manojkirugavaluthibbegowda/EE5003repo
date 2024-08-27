@@ -23,13 +23,13 @@ The Energy Usage Dashboard is a web-based application that monitors and displays
 5. Create a Virtual Environment :
     It's recommended to create a virtual environment to isolate the project dependencies. You can create and           activate a virtual environment using the following commands:
 
-    # Create a virtual environment
+    ### Create a virtual environment
       - python -m venv venv
 
-        # Activate the virtual environment (on Windows)
+        ### Activate the virtual environment (on Windows)
           - venv\Scripts\activate
 
-        # Activate the virtual environment (on macOS/Linux)
+        ### Activate the virtual environment (on macOS/Linux)
           - source venv/bin/activate
               
 6. Install Dependencies :
