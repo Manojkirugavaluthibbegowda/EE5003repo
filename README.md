@@ -18,8 +18,9 @@ The Energy Usage Dashboard is a web-based application that monitors and displays
 
 3. Clone the Repository :
     Start by cloning the repository from GitHub to your local machine:
+       - 
 
-4. Create a Virtual Environment :
+5. Create a Virtual Environment :
     It's recommended to create a virtual environment to isolate the project dependencies. You can create and           activate a virtual environment using the following commands:
 
     # Create a virtual environment
@@ -31,20 +32,20 @@ The Energy Usage Dashboard is a web-based application that monitors and displays
         # Activate the virtual environment (on macOS/Linux)
           - source venv/bin/activate
               
-5. Install Dependencies :
+6. Install Dependencies :
     Once the virtual environment is activated, install the required Python packages:
    
     - pip install -r requirements.txt
   
-6. Run the Application :
+7. Run the Application :
     After installing the dependencies, you can start the Flask server to run the application:
    
     - python3 app.py
   
-7. Access the Dashboard
+8. Access the Dashboard
     Open your web browser and go to http://127.0.0.1:5000/ to access the Energy Usage Dashboard.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~END~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 # Data Persistence :
 The application saves energy consumption data to a json file named 'energy_data.json' . This file ensures that the data is persisted across server restarts.
