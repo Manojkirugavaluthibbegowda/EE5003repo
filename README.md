@@ -18,7 +18,7 @@ The Energy Usage Dashboard is a web-based application that monitors and displays
 
 3. Clone the Repository :
     Start by cloning the repository from GitHub to your local machine:
-       - 
+       - [https://github.com/Manojkirugavaluthibbegowda/EE5003repo.git]
 
 5. Create a Virtual Environment :
     It's recommended to create a virtual environment to isolate the project dependencies. You can create and           activate a virtual environment using the following commands:
