@@ -26,6 +26,10 @@ total_consumption = {
 }
 
 def load_data():
+    """
+    Load historical data and total consumption from a file.
+    If the file exists, load the data; otherwise, return the initial data structures.
+    """
     if os.path.exists(DATA_FILE):
         with open(DATA_FILE, 'r') as file:
             data = json.load(file)
@@ -33,6 +37,10 @@ def load_data():
     return historical_data, total_consumption
 
 def save_data():
+    """
+    Save the current state of historical data and total consumption to a file.
+    This ensures that data persists across server restarts.
+    """
     with open(DATA_FILE, 'w') as file:
         json.dump({
             'historical_data': historical_data,
@@ -40,6 +48,10 @@ def save_data():
         }, file)
 
 def update_historical_data(new_data):
+    """
+    Update the historical data and total consumption with newly generated data.
+    This function also limits the history to the last 10 entries and saves the updated data to the file.
+    """
     for entry in new_data:
         device = entry['device']
         consumption = entry['consumption']
@@ -51,6 +63,9 @@ def update_historical_data(new_data):
     save_data()  # Save data after each update
 
 def calculate_averages():
+    """
+    Calculate the average consumption for each device based on the historical data.
+    """
     averages = {}
     for device, entries in historical_data.items():
         if entries:
@@ -61,30 +76,44 @@ def calculate_averages():
     return averages
 
 def calculate_totals():
-    # Simply return the accumulated total consumption
+    """
+    Return the accumulated total consumption for each device.
+    """
     return total_consumption
 
 @app.route('/data')
 def get_data():
+    """
+    Endpoint to generate new data, update historical records, and return the current historical data.
+    """
     new_data = data_generator.generate_device_data()
     update_historical_data(new_data)
     return jsonify(historical_data)
 
 @app.route('/averages')
 def get_averages():
+    """
+    Endpoint to return the average consumption for each device.
+    """
     averages = calculate_averages()
     return jsonify(averages)
 
 @app.route('/totals')
 def get_totals():
+    """
+    Endpoint to return the total accumulated consumption for each device.
+    """
     totals = calculate_totals()
     return jsonify(totals)
 
 @app.route('/')
 def index():
+    """
+    Render the main dashboard page.
+    """
     return render_template('index.html')
 
 if __name__ == '__main__':
-    # Load data from the file when the server starts
+    # Load data from the file when the server starts to ensure continuity
     historical_data, total_consumption = load_data()
     app.run(debug=True)

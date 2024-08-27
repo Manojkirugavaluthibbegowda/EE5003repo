@@ -1,12 +1,13 @@
 // Maximum consumption limits for each device in kWh
 const deviceLimits = {
-    "LED Bulb": 0.005,  // Example limit
-    "Washing Machine": 1.2,  // Example limit
-    "Refrigerator": 0.2,  // Example limit
-    "Centralized Heater": 2.5  // Example limit
+    "LED Bulb": 0.005,  // Limit for LED Bulb
+    "Washing Machine": 1.2,  // Limit for Washing Machine
+    "Refrigerator": 0.2,  // Limit for Refrigerator
+    "Centralized Heater": 2.5  // Limit for Centralized Heater
 };
 
 // Function to generate recommendations based on consumption
+// Provides energy-saving tips tailored to the specific device
 function generateRecommendations(deviceName, currentValue) {
     const recommendations = [];
 
@@ -24,6 +25,7 @@ function generateRecommendations(deviceName, currentValue) {
         recommendations.push("Consider using natural light during the day.");
     }
 
+    // Add a recommendation if the usage is close to the device's maximum limit
     if (currentValue >= 0.9 * deviceLimits[deviceName]) {
         recommendations.push("Your usage is approaching the maximum capacity. Consider reducing usage.");
     }
@@ -32,6 +34,7 @@ function generateRecommendations(deviceName, currentValue) {
 }
 
 // Function to check for overconsumption and generate recommendations
+// Triggers an alert if the consumption exceeds 90% of the device's maximum limit
 function checkOverconsumption(deviceName, currentValue, timestamp) {
     const limit = deviceLimits[deviceName];
     if (currentValue >= 0.9 * limit) {
@@ -41,6 +44,7 @@ function checkOverconsumption(deviceName, currentValue, timestamp) {
 }
 
 // Function to display an alert with recommendations
+// Creates and displays an alert box with device details and energy-saving tips
 function showAlert(deviceName, currentValue, timestamp, recommendations) {
     const alertBox = document.createElement('div');
     alertBox.classList.add('alert-box');
@@ -63,6 +67,7 @@ function showAlert(deviceName, currentValue, timestamp, recommendations) {
 }
 
 // Function to update the chart with new data
+// Updates the chart with the latest energy consumption data and handles overconsumption checks
 function updateChart(chart, data, deviceName, viewLabel, dynamicMax, isTimeSeries, chartType) {
     if (isTimeSeries) {
         // Handle the time series data for Current Consumption
@@ -79,7 +84,7 @@ function updateChart(chart, data, deviceName, viewLabel, dynamicMax, isTimeSerie
         // Check for overconsumption and generate recommendations
         checkOverconsumption(deviceName, currentValue, currentTimestamp);
 
-        // Adjust y-axis dynamically
+        // Adjust y-axis dynamically based on data
         const maxYValue = Math.max(...consumptions);
         chart.options.scales.y.max = dynamicMax ? maxYValue * 1.1 : chart.originalMax;
     } else {
@@ -88,7 +93,7 @@ function updateChart(chart, data, deviceName, viewLabel, dynamicMax, isTimeSerie
         chart.data.datasets[0].data = [data[deviceName]];
         chart.data.datasets[0].label = `${deviceName} Energy Consumption (kWh)`;
 
-        // Dynamically adjust the y-axis in Total Consumption
+        // Dynamically adjust the y-axis in Total Consumption view
         if (dynamicMax) {
             const maxYValue = data[deviceName];
             chart.options.scales.y.max = maxYValue * 1.1;  // Add 10% buffer
@@ -107,11 +112,13 @@ function updateChart(chart, data, deviceName, viewLabel, dynamicMax, isTimeSerie
 }
 
 // Function to get the selected view (Current, Average, or Total Consumption)
+// Determines which view the user has selected via radio buttons
 function getSelectedView() {
     return document.querySelector('.switch-container input[type="radio"]:checked').value;
 }
 
 // Function to fetch and update the data for the charts
+// Fetches data from the server based on the selected view and updates the corresponding charts
 async function updateData(charts, view) {
     const data = await fetchData(view);
     const viewLabel = view === "0" ? "Current Consumption" : view === "1" ? "Average Consumption" : "Total Consumption";
@@ -126,6 +133,7 @@ async function updateData(charts, view) {
 }
 
 // Function to fetch the data from the server
+// Requests data from the server depending on the selected view (Current, Average, or Total Consumption)
 async function fetchData(view) {
     let url = '';
     if (view === "0") {
@@ -140,6 +148,7 @@ async function fetchData(view) {
     return await response.json();
 }
 
+// Initialize the charts and set up periodic data updates
 window.onload = function() {
     const ctxs = {
         ledBulbChart: document.getElementById('ledBulbChart').getContext('2d'),
@@ -276,7 +285,7 @@ window.onload = function() {
     // Initial view set to "Current Consumption"
     let currentView = "0";
 
-    // Continuously update data based on selected view
+    // Continuously update data based on the selected view
     setInterval(() => {
         updateData(charts, currentView);
     }, 5000);

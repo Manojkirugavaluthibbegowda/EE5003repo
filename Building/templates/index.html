@@ -84,6 +84,7 @@
         animation: fadein 0.5s forwards, fadeout 0.5s 4.5s forwards;
       }
 
+      /* Animation for fading in the alert box */
       @keyframes fadein {
         from {
           opacity: 0;
@@ -93,6 +94,7 @@
         }
       }
 
+      /* Animation for fading out the alert box */
       @keyframes fadeout {
         from {
           opacity: 1;
@@ -112,37 +114,47 @@
 
     <!-- Modern Toggle Switch -->
     <div class="switch-container">
+      <!-- Radio button for Current Consumption view -->
       <input type="radio" id="current" name="view" value="0" checked />
       <label for="current">Current Consumption</label>
 
+      <!-- Radio button for Average Consumption view -->
       <input type="radio" id="average" name="view" value="1" />
       <label for="average">Average Consumption</label>
 
+      <!-- Radio button for Total Consumption view -->
       <input type="radio" id="total" name="view" value="2" />
       <label for="total">Total Consumption</label>
     </div>
 
     <!-- Chart Containers -->
     <div class="chart-container">
+      <!-- Chart for LED Bulb -->
       <div class="chart-box">
         <canvas id="ledBulbChart"></canvas>
         <p>LED Bulb (Capacity: 0.005 kWh)</p>
       </div>
+
+      <!-- Chart for Washing Machine -->
       <div class="chart-box">
         <canvas id="washingMachineChart"></canvas>
         <p>Washing Machine (Capacity: 2.0 kWh)</p>
       </div>
+
+      <!-- Chart for Refrigerator -->
       <div class="chart-box">
         <canvas id="refrigeratorChart"></canvas>
         <p>Refrigerator (Capacity: 0.3 kWh)</p>
       </div>
+
+      <!-- Chart for Centralized Heater -->
       <div class="chart-box">
         <canvas id="centralizedHeaterChart"></canvas>
         <p>Centralized Heater (Capacity: 5.0 kWh)</p>
       </div>
     </div>
 
-    <!-- JavaScript File -->
+    <!-- Link to the JavaScript file -->
     <script src="/static/js/dashboard.js"></script>
   </body>
 </html>
