@@ -17,7 +17,7 @@ The Energy Usage Dashboard is a web-based application that monitors and displays
       - pip: Python's package installer is required to install the necessary dependencies.
 
 3. Clone the Repository :
-    Start by cloning the repository from GitHub to your local machine:
+    Start by cloning the repository from GitHub to your local machine and open the target forlder (Building):
        - [https://github.com/Manojkirugavaluthibbegowda/EE5003repo.git]
 
 5. Create a Virtual Environment :
